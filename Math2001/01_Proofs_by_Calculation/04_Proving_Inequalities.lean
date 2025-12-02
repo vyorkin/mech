@@ -8,9 +8,19 @@ math2001_init
 
 
 -- Example 1.4.1
+-- a)
 example {x y : ℤ} (hx : x + 3 ≤ 2) (hy : y + 2 * x ≥ 3) : y > 3 :=
   calc
     y = y + 2 * x - 2 * x := by ring
+    _ ≥ 3 - 2 * x := by rel [hy]
+    _ = 9 - 2 * (x + 3) := by ring
+    _ ≥ 9 - 2 * 2 := by rel [hx]
+    _ > 3 := by numbers
+
+-- b)
+example {x y : ℤ} (hx : x + 3 ≤ 2) (hy : y + 2 * x ≥ 3) : y > 3 :=
+  calc
+    y = y + 2 * x - 2 * x := by rw [add_sub_cancel]
     _ ≥ 3 - 2 * x := by rel [hy]
     _ = 9 - 2 * (x + 3) := by ring
     _ ≥ 9 - 2 * 2 := by rel [hx]
