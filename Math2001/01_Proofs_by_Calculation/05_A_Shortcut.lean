@@ -6,10 +6,20 @@ math2001_init
 
 /-! # Section 1.5: A shortcut -/
 
+-- Новая тактика addarith.
+--
+-- Пытается доказать (не)равенство, используя указанные гипотезы.
+-- Может прибавлять/вычитать термы с обоих сторон (не)равенства,
+-- складывать и вычитать термы, сравнивать числа, но не может
+-- умножать или делить/сокращать обе части (не)равенства на что-либо.
+--
+-- Для сокращения у нас есть тактика: cancel t at h.
+
 example {x : ℤ} (h1 : x + 4 = 2) : x = -2 :=
   by addarith [h1]
 
 example {a b : ℤ} (ha : a - 2 * b = 1) : a = 2 * b + 1 :=
+  -- a = 2 * b + (a - 2 * b)
   by addarith [ha]
 
 example {x y : ℚ} (hx : x = 2) (hy : y ^ 2 = -7) : x + y ^ 2 = -5 :=
@@ -17,11 +27,14 @@ example {x y : ℚ} (hx : x = 2) (hy : y ^ 2 = -7) : x + y ^ 2 = -5 :=
     x + y ^ 2 = x - 7 := by addarith [hy]
     _ = -5 := by addarith [hx]
 
+-- t + s * t > 0 => (4 - s * t) + s * t > 0 => 4 > 0
+example {s t : ℝ} (h : t = 4 - s * t) : t + s * t > 0 :=
+  by addarith [h]
 
-example {s t : ℝ} (h : t = 4 - s * t) : t + s * t > 0 := by addarith [h]
-
-example {m n : ℝ} (h1 : m ≤ 8 - n) : 10 > m + n := by addarith [h1]
-
+example {m n : ℝ} (h1 : m ≤ 8 - n) : 10 > m + n :=
+  by addarith [h1]
 
 -- Check that `addarith` can't verify this deduction!
-example {w : ℚ} (h1 : 3 * w + 1 = 4) : w = 1 := sorry
+example {w : ℚ} (h1 : 3 * w + 1 = 4) : w = 1 :=
+  by sorry
+  -- by addarith [h1]

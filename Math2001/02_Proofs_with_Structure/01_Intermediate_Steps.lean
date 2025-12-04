@@ -4,7 +4,6 @@ import Library.Basic
 
 math2001_init
 
-
 example {a b : ℝ} (h1 : a - 5 * b = 4) (h2 : b + 2 = 3) : a = 9 := by
   have hb : b = 1 := by addarith [h2]
   calc
@@ -15,55 +14,90 @@ example {a b : ℝ} (h1 : a - 5 * b = 4) (h2 : b + 2 = 3) : a = 9 := by
 
 example {m n : ℤ} (h1 : m + 3 ≤ 2 * n - 1) (h2 : n ≤ 5) : m ≤ 6 := by
   have h3 :=
-  calc
-    m + 3 ≤ 2 * n - 1 := by rel [h1]
-    _ ≤ 2 * 5 - 1 := by rel [h2]
-    _ = 9 := by numbers
+    calc
+      m + 3 ≤ 2 * n - 1 := by rel [h1]
+      _ ≤ 2 * 5 - 1 := by rel [h2]
+      _ = 9 := by numbers
   addarith [h3]
 
-
 example {r s : ℚ} (h1 : s + 3 ≥ r) (h2 : s + r ≤ 3) : r ≤ 3 := by
-  have h3 : r ≤ 3 + s := by sorry -- justify with one tactic
-  have h4 : r ≤ 3 - s := by sorry -- justify with one tactic
+  have h3 : r ≤ 3 + s := by addarith [h1] -- justify with one tactic
+  have h4 : r ≤ 3 - s := by addarith [h2] -- justify with one tactic
   calc
-    r = (r + r) / 2 := by sorry -- justify with one tactic
-    _ ≤ (3 - s + (3 + s)) / 2 := by sorry -- justify with one tactic
-    _ = 3 := by sorry -- justify with one tactic
+    r = (r + r) / 2 := by ring -- justify with one tactic
+    _ ≤ (3 - s + (3 + s)) / 2 := by rel [h3, h4] -- justify with one tactic
+    _ = 3 := by ring -- justify with one tactic
 
+-- Тактика cancel t может сократить на t только, если
+-- Lean может вывести, что t ≠ 0. Здесь это следует из гипотезы h2,
+-- которую мы не используем явно, но попробуй её убрать и увидишь ошибку.
 example {t : ℝ} (h1 : t ^ 2 = 3 * t) (h2 : t ≥ 1) : t ≥ 2 := by
   have h3 :=
-  calc t * t = t ^ 2 := by ring
-    _ = 3 * t := by rw [h1]
+    calc
+      t * t = t ^ 2 := by ring
+      _ = 3 * t := by rw [h1]
   cancel t at h3
   addarith [h3]
 
 
 example {a b : ℝ} (h1 : a ^ 2 = b ^ 2 + 1) (h2 : a ≥ 0) : a ≥ 1 := by
   have h3 :=
-  calc
-    a ^ 2 = b ^ 2 + 1 := by rw [h1]
-    _ ≥ 1 := by extra
-    _ = 1 ^ 2 := by ring
+    calc
+      a ^ 2 = b ^ 2 + 1 := by rw [h1]
+      _ ≥ 1 := by extra
+      _ = 1 ^ 2 := by ring
+  -- Кэнсэлим квадрат, т.е. делим на a, это требует чтобы a ≥ 0 (h2)
   cancel 2 at h3
 
 
 example {x y : ℤ} (hx : x + 3 ≤ 2) (hy : y + 2 * x ≥ 3) : y > 3 := by
-  sorry
+  have h1 : x ≤ -1 := by addarith [hx]
+  calc
+    y ≥ 3 - 2 * x := by addarith [hy]
+    _ ≥ 3 - 2 * (-1) := by rel [h1]
+    _ > 3 := by numbers
 
 example (a b : ℝ) (h1 : -b ≤ a) (h2 : a ≤ b) : a ^ 2 ≤ b ^ 2 := by
-  sorry
+  have h3 : 0 ≤ b + a := by addarith [h1]
+  have h4 : 0 ≤ b - a := by addarith [h2]
+  calc
+    -- Тк мы знаем, что: (b - a) * (b + a) ≥ 0,
+    -- то по сути это имеет вид: x + z ≥ x
+    -- Как раз работа для тактики extra.
+    a ^ 2 ≤ a ^ 2 + (b - a) * (b + a) := by extra
+    _ = b ^ 2 := by ring
 
 example (a b : ℝ) (h : a ≤ b) : a ^ 3 ≤ b ^ 3 := by
-  sorry
+  have h1 : b - a ≥ 0 := by addarith [h]
+  calc
+    a ^ 3 ≤ a ^ 3 + ((b - a) * ((b - a) ^ 2 + 3 * (b + a) ^ 2)) / 4 := by extra
+    _ = b ^ 3 := by ring
 
 /-! # Exercises -/
 
-
 example {x : ℚ} (h1 : x ^ 2 = 4) (h2 : 1 < x) : x = 2 := by
-  sorry
+  have h3 :=
+    calc
+      x * (x + 2) = x ^ 2 + 2 * x := by ring
+      _ = 4 + 2 * x := by rw [h1]
+      _ = 2 * (x + 2) := by ring
+  cancel (x + 2) at h3 -- гипотеза h2 нужна, чтобы это было возможно
 
 example {n : ℤ} (hn : n ^ 2 + 4 = 4 * n) : n = 2 := by
-  sorry
+  have h0 :=
+    calc
+      (n - 2) ^ 2 = n ^ 2 - 4 * n + 4 := by ring
+      _ = 0 := by addarith [hn]
+  have h1 :=
+    by cancel 2 at h0
+  addarith [h1]
 
 example (x y : ℚ) (h : x * y = 1) (h2 : x ≥ 1) : y ≤ 1 := by
-  sorry
+  have h0 : 0 < x * y := by addarith [h]
+  have h1 : 0 < y := by cancel x at h0 -- using h2
+  calc
+    y ≤ x * y := by sorry
+    _ = 1 := by rw [h]
+
+-- h1: 0 < y
+--     y ≤ 1

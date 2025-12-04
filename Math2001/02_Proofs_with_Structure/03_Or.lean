@@ -16,13 +16,17 @@ example {x y : ℝ} (h : x = 1 ∨ y = -1) : x * y + x = y + 1 := by
     _ = y + 1 := by rw [hy]
 
 example {n : ℕ} : n ^ 2 ≠ 2 := by
-  have hn := le_or_succ_le n 1
+  have hn := le_or_succ_le n 1 -- a ≤ b ∨ b + 1 ≤ a
+  -- have hn := le_or_lt n 1   -- a ≤ b ∨ b < a
   obtain hn | hn := hn
-  apply ne_of_lt
-  calc
-    n ^ 2 ≤ 1 ^ 2 := by rel [hn]
-    _ < 2 := by numbers
-  sorry
+  · apply ne_of_lt
+    calc
+      n ^ 2 ≤ 1 ^ 2 := by rel [hn]
+      _ < 2 := by numbers
+  · apply ne_of_gt
+    -- hn : 2 ≤ n
+    calc
+      2 < n ^ 2 := by sorry
 
 example {x : ℝ} (hx : 2 * x + 1 = 5) : x = 1 ∨ x = 2 := by
   right
