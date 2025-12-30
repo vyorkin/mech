@@ -31,7 +31,7 @@ example {r s : ℝ} (h1 : s = 3) (h2 : r + 2 * s = -1) : r = -7 :=
 -- Example 1.2.3
 -- Exercise: replace the words "sorry" with the correct Lean justification.
 example {a b m n : ℤ} (h1 : a * m + b * n = 1) (h2 : b ^ 2 = 2 * a ^ 2) :
-    (2 * a * n + b * m) ^ 2 = 2 :=
+  (2 * a * n + b * m) ^ 2 = 2 :=
   calc
     (2 * a * n + b * m) ^ 2
       = 2 * (a * m + b * n) ^ 2 + (m ^ 2 - 2 * n ^ 2) * (b ^ 2 - 2 * a ^ 2) := by ring
@@ -43,7 +43,7 @@ example {a b m n : ℤ} (h1 : a * m + b * n = 1) (h2 : b ^ 2 = 2 * a ^ 2) :
 
 -- a)
 example {a b c d e f : ℤ} (h1 : a * d = b * c) (h2 : c * f = d * e) :
-    d * (a * f - b * e) = 0 :=
+  d * (a * f - b * e) = 0 :=
   calc
     d * (a * f - b * e) = d * a * f - d * b * e := by ring
     _ = a * d * f - d * b * e := by rw [mul_comm d a]
